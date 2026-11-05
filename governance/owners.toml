@@ -2,4 +2,4 @@
 # from the PR's base branch. `github` is the login whose approval on the head SHA counts.
 
 [[owner]]
-github = "keelstackhq"
+github = "urbanisierung"
