@@ -1,0 +1,1 @@
+- `@keelstackhq/shared` exports one function, `greet(name)`, covered by one test (G1/T1).
