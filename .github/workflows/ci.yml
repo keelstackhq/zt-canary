@@ -1,0 +1,129 @@
+name: ci
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+      TURBO_SCM_HEAD: ${{ github.sha }}
+    steps:
+      # step: timer
+      - name: Start timer
+        run: echo "CI_START=$(date +%s)" >> "$GITHUB_ENV"
+      # step: checkout
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      # step: agents-index
+      - name: Agents index current?
+        run: node scripts/agents-index.mjs --check
+      # step: affected
+      - name: Anything affected?
+        id: affected
+        env:
+          TURBO_VERSION: 2.11.8
+        run: |
+          set +e
+          curl -fsSL "https://registry.npmjs.org/@turbo/linux-64/-/linux-64-$TURBO_VERSION.tgz" \
+            | tar -xz -C "$RUNNER_TEMP" --strip-components=2 turbo-linux-x64/bin/turbo
+          "$RUNNER_TEMP/turbo" query affected --tasks lint format:check typecheck test build > "$RUNNER_TEMP/affected.json"
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            node .github/scripts/affected.mjs < "$RUNNER_TEMP/affected.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::turbo query affected failed (exit $code); running everything"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      # step: ci-pre
+      - name: Repo CI prelude (scripts/ci-pre.sh)
+        if: steps.affected.outputs.skip != 'true'
+        run: if [ -f scripts/ci-pre.sh ]; then bash scripts/ci-pre.sh; fi
+      # step: setup-pnpm-node
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        if: steps.affected.outputs.skip != 'true'
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        if: steps.affected.outputs.skip != 'true'
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      # step: install
+      - name: Install
+        if: steps.affected.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
+      # step: turbo-cache
+      # Turborepo remote cache in the GitHub Actions cache; exports TURBO_API/TURBO_TOKEN/TURBO_TEAM
+      - uses: keelstackhq/hoard@06291684834e8d8a82b8d3f5e7c9f5677497f4e2 # v0.4.0
+        if: steps.affected.outputs.skip != 'true'
+      # step: rust-affected
+      - name: Rust affected?
+        id: rust
+        if: steps.affected.outputs.skip != 'true' && hashFiles('.github/scripts/rust-affected.mjs') != ''
+        run: |
+          set +e
+          pnpm turbo query affected --packages > "$RUNNER_TEMP/rust.json"
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            node .github/scripts/rust-affected.mjs < "$RUNNER_TEMP/rust.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::turbo query affected --packages failed (exit $code); running Rust steps"
+            echo "rust=true" >> "$GITHUB_OUTPUT"
+          fi
+      # step: rust-toolchain
+      - name: Rust toolchain (from rust-toolchain.toml)
+        id: toolchain
+        if: steps.affected.outputs.skip != 'true' && steps.rust.outputs.rust == 'true'
+        run: rustup toolchain install
+      # step: rust-cache
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        if: steps.affected.outputs.skip != 'true' && steps.rust.outputs.rust == 'true'
+        with:
+          key: ${{ hashFiles('rust-toolchain.toml') }}
+      # step: rust-tools
+      - uses: taiki-e/install-action@5488ac5a951645ce95062214902ac4b6bc1a1037 # v2.87.32
+        if: steps.affected.outputs.skip != 'true' && steps.rust.outputs.rust == 'true'
+        with:
+          tool: cargo-nextest@0.9.148,cargo-deny@0.20.2
+      # step: run-affected
+      - name: Run affected tasks
+        if: steps.affected.outputs.skip != 'true'
+        run: pnpm turbo run lint format:check typecheck test build --affected --output-logs=errors-only
+      # step: ci-extra
+      - name: Repo CI extras (scripts/ci-extra.sh)
+        if: steps.affected.outputs.skip != 'true'
+        run: if [ -f scripts/ci-extra.sh ]; then bash scripts/ci-extra.sh; fi
+      # step: duration
+      - name: Job duration
+        if: always()
+        continue-on-error: true
+        run: |
+          secs=$(( $(date +%s) - ${CI_START:-$(date +%s)} ))
+          echo "ci job: ${secs} s (budget: 45 s typical PR, 15 s docs-only)" >> "$GITHUB_STEP_SUMMARY"
+
+  ci-ok:
+    needs: [ci]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require ci success
+        run: |
+          if [ "${{ needs.ci.result }}" != "success" ]; then
+            echo "ci result: ${{ needs.ci.result }}"
+            exit 1
+          fi

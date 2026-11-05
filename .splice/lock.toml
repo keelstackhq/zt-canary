@@ -1,0 +1,49 @@
+format = 1
+splice = "0.4.0"
+
+[template]
+source = "gh:keelstackhq/hull//template"
+version = "0.6.2"
+commit = "c71f820c93627816fbb892160e3b48323b81536a"
+
+[vars]
+scope = "keelstackhq"
+
+[[pieces]]
+id = "base"
+name = "base"
+vars = {}
+
+[files]
+".claude/hooks/guard.mjs" = { class = "owned", sha256 = "3ad9146ab3d0efcbd576ff2d8b6fef1b90e18a0ca2235e3fc05c9161ed1e2370" }
+".claude/hooks/session-start.sh" = { class = "owned", sha256 = "6170fb738fc66c1383aca591aa31dfc0ab626468d555241e094159f90b5f3a4b" }
+".claude/hooks/stop-checks.sh" = { class = "owned", sha256 = "7a60f9c7bbd5e756b2bdb01ea8010740e880deadf1016a283a3136b8a548e890" }
+".claude/loop.md" = { class = "owned", sha256 = "e398c1ea68768b7bc99b24c59827c30c76994ae0a805097b18617b3814f8a548" }
+".claude/settings.json" = { class = "owned", sha256 = "277e7ed0b401ae33da8f20c18a6481ea8beb12682a57e33fba110fcfd09a42b1" }
+".claude/skills/add-piece/SKILL.md" = { class = "owned", sha256 = "0c14babd15a4c93742cdd5eb9ae60b5a5cbbf8a1f1667502d0d9a372bc4c2a7d" }
+".claude/skills/ready/SKILL.md" = { class = "owned", sha256 = "a24a73265d5070e2ec3b73aff9afb8a5265fde741f40b17138919fcddd489b23" }
+".claude/skills/verify/SKILL.md" = { class = "owned", sha256 = "96ca14fe5e4dde90d5c6bcaf6511d337b5cdf9689c61e4f4c39848c33a67fcba" }
+".claude/statusline.sh" = { class = "owned", sha256 = "64a11fef7527d0fda66333a97403382cac278ca4013a2b597729820f400747e9" }
+".gitattributes" = { class = "owned", sha256 = "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c" }
+".github/scripts/affected.mjs" = { class = "owned", sha256 = "045814e9453b9868d9447f03c74b18da1ccd55c25fec2c4732968b46c1ccd3c3" }
+".github/scripts/preview.mjs" = { class = "owned", sha256 = "fb08f614069cce2523e32af04aba4701382aff1629e9545051038c4a676b7db4" }
+".github/scripts/release-plan.mjs" = { class = "owned", sha256 = "f8bf941fbf8401e3a91d7df1985e111b577cdbdeac7560eb46016e500c3e5e57" }
+".github/workflows/ci.yml" = { class = "owned", sha256 = "ee5b24755149cc38f1d3efd97adf54dcdf0406ff39c2d9f5acf1a2adff7c8a0c" }
+".github/workflows/preview-deploy.yml" = { class = "owned", sha256 = "7049e2e38d8c2b9f100c050da5515c986622e3f75da784ba304434ca2f8e9491" }
+".github/workflows/preview.yml" = { class = "owned", sha256 = "666ee6b97902053a9dbc50d52384cc1341d6c1333edebf7a698ab6d9893055c9" }
+".github/workflows/release.yml" = { class = "owned", sha256 = "42f914e678e7b4d83c9ab5d282ae89edca956ad12821bb14439543cdf8375776" }
+".github/workflows/splice.yml" = { class = "owned", sha256 = "dbcdb9f8bd25a87cedafbdd03e44096a54544af93d5f411191f756bbfcb70ac0" }
+".gitignore" = { class = "owned", sha256 = "f9aa75cea36ae5f9ee24dc8c0522c903a8e314502f5bc6b9b84257c9170f0496" }
+".node-version" = { class = "owned", sha256 = "68ca3fba3b7e864770cb61aeb306d4bd4354b68ab4dd38450860c5d823e42a53" }
+"CLAUDE.md" = { class = "owned", sha256 = "f05dea4c3e9e8696f7786f22c94a79eab7ad4146ce861c45f5022f6608ffab8d" }
+"package.json" = { class = "shared", sha256 = "5f2ba0081422924a5b388ee68316994f8e6c23b8ee8d58c1df08b484783e6743" }
+"packages/shared/package.json" = { class = "shared", sha256 = "592d70d057b0730a01cc8f2c6ee502167587ff8c423e6070187fd722acc7afb1" }
+"packages/shared/tsconfig.json" = { class = "owned", sha256 = "faf2e677ac5683429b630f946a125c46c3d6fe37afc009d8c77bfdaecac898f1" }
+"packages/shared/vite.config.ts" = { class = "owned", sha256 = "c04f235b0727c69896dee3e80da2ef74112ab62762ff7f936448d042960b2fbd" }
+"pnpm-workspace.yaml" = { class = "shared", sha256 = "2140f836b70ec13ea39d85020fe749397fe7f6f2b75b4bf967ea59bd3a7e3de8" }
+"renovate.json" = { class = "owned", sha256 = "c903f6676d6f1bf9c4fcdb2b97ce0cbf8fe34d482dddf630180a75794b86d3de" }
+"scripts/agents-index.mjs" = { class = "owned", sha256 = "84d7e28927277d99d4f986bd69049e5393a59be157b48baf431ecc397f10c460" }
+"scripts/ready.mjs" = { class = "owned", sha256 = "cfb3ee4a11d17ec817c55d73f3aaf8cbb97c40822555a75c2576b9bac3274f87" }
+"tsconfig.base.json" = { class = "owned", sha256 = "7c0aa3fb310bd4981b318971140b3d228e063c5308a23dcd51b3b0fe3cc0edc8" }
+"turbo.json" = { class = "shared", sha256 = "fb3ec69d79a51fb4ccdc8efd732bcc05eaaf3bbb0c9563a3de72908bb090ec1c" }
+"vite.config.ts" = { class = "owned", sha256 = "c037683858abf5e48b3b0cd48863cb3951156aca6c0b60902791bd4e6ef4aa23" }
