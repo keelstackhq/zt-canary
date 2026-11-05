@@ -1,0 +1,46 @@
+format = 1
+splice = "0.4.0"
+
+[channel]
+name = "bosun"
+only = []
+exclude = [".github/workflows/splice.yml", "hoist.toml", ".claude/settings.json", ".bosun/intake.toml"]
+
+[template]
+source = "gh:keelstackhq/bosun//channel"
+version = "0.5.0"
+commit = "83eb541c34157a71468b392da5e70763e40b8918"
+
+[vars]
+bosun_version = ""
+intake = "1"
+own_ci = "1"
+owner = "keelstackhq"
+project = "zt-canary"
+rust_path = "."
+ts_path = "."
+
+[[pieces]]
+id = "core"
+name = "core"
+vars = {}
+
+[[pieces]]
+id = "ts-pnpm"
+name = "ts-pnpm"
+vars = {}
+
+[files]
+".bosun/bosun.toml" = { class = "shared", sha256 = "d425e2fb42c96005feec6f1027b536fedc8a6076664f5706d211245152bbcd6c" }
+".bosun/fold-fragments.sh" = { class = "owned", sha256 = "c9362c859fa7fc092e2aa0de4d2431aef89a0743c417ab6ed52027bc2e71c7fc" }
+".bosun/version" = { class = "owned", sha256 = "a0ad50640139a524f86591157145bf1d4674ea9c065bfea21558f0f7b04430c8" }
+".github/workflows/bosun.yml" = { class = "owned", sha256 = "05c6eedb0780913e969c52dde4493467ac64f2e71579c8abe6e56427808a4f5b" }
+".github/workflows/main-health.yml" = { class = "owned", sha256 = "9e28c6a847df134e5ccdb04597b1c70dc712295489c689ea36d78c6c404e98da" }
+".github/workflows/main-open.yml" = { class = "owned", sha256 = "ab33fa2b22a6ffdc662c012a662ceaf6f2010ac2ec2bb57a825a84092c5f83d6" }
+".github/workflows/risk.yml" = { class = "owned", sha256 = "6040cbbcf2f2601b324dae08bed83cbdab685c57c35a7c06a83b1d02bb1e72db" }
+".github/workflows/verdict.yml" = { class = "owned", sha256 = "961e39b8a72f7841bf23051ddf3b571bd45c5dae30a96f886b97b04e4573c4ab" }
+"docs/setup-script.sh" = { class = "owned", sha256 = "2dde87657f7a083fe6e0fa6904f181026129e12984e08b3c724ca7449644e817" }
+
+[sections]
+"AGENTS.md" = { sha256 = "255b96c0b03ffb0c57e09a3d8aaf392ee9f6e00aba28aef39b6240b89e9af1dc", created = false }
+"REVIEW.md" = { sha256 = "4d57702f1481b09f185461fe3afc76e93c3bf685a78b35dc3030c6b70b0b0119", created = true }

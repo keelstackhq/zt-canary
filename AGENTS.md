@@ -37,3 +37,77 @@ Packages call `vp build/test/lint/fmt/pack` directly. Turbo caches; never wrap t
 - `docs/agents/project.md`: repo-specific notes; read first.
 - `docs/agents/index.md`: generated map of commands, packages and docs.
 - `<dir>/AGENTS.md`: notes for one package.
+
+<!-- splice:bosun:begin — managed by `splice update --channel bosun`; edit the source -->
+
+## bosun: agents in this repo
+
+Agents write all the code here. bosun owns the process: you call a `bosun` command and act on
+the one JSON object it prints (`ok`, `exit_code`, `data`, `error.fix`, `next`). Exit codes:
+0 ok, 1 error, 2 usage, 3 conflict, 4 halted, 5 needs-human, 6 limit. Always do what
+`error.fix` says; never work around a refusal.
+
+### The loop for one task
+
+1. `bosun status` — see sessions, leases, halt and main-red.
+2. `bosun claim <issue>` — exit 3 means another session holds an overlapping lease; pick
+   another task (`bosun wave plan <epic>`).
+3. Work in your own workspace (`berth up <task>`) with `BOSUN_SESSION=<session>/<task>` set, so
+   your lease is told apart from your orchestrator's and from other wave agents'. Run `bosun heartbeat` at least every
+   20 minutes while you work.
+4. Test first. Before every push run what CI runs, locally:
+   `for g in fmt lint test deps test-integrity; do bosun gate "$g" || break; done`.
+   CI minutes are scarce: push once per PR, when it is done and green locally; do review
+   rounds locally (step 6) and push their fixes together. Do not edit the PR body or title
+   just to retry CI.
+5. `bosun pr <issue>` — opens or reuses the PR and moves the task to review.
+6. Review: a fresh subagent reads `bosun review-pack <pr>` and returns the verdict JSON; post it
+   with `bosun verdict post --from -` (in a cloud session, which cannot write statuses:
+   `bosun verdict comment --from -`). Fix request-changes findings, then review again.
+7. `bosun risk-check <pr>` runs in CI. A high-risk PR waits for an owner; ask with
+   `bosun ask <issue> "<question>"`.
+8. `bosun pr <issue> --auto-merge` as soon as the PR is in review; do not wait for the checks.
+   GitHub merges it when the required checks are green. If bosun exits 5 with `already_clean`,
+   the PR was already mergeable: the owner merges it. You never merge, tag or force-push (the
+   hooks refuse it).
+9. `bosun release <issue>` if you stop before the task is done.
+
+### Sessions
+
+- An orchestrator starts a child only with `bosun spawn <epic>`, makes the `create_session`
+  call from `next`, then runs `bosun spawn <epic> --record --from -` with the result.
+- `bosun wait --child <session>` waits for a child's result; `bosun msg` returns a
+  `send_message` call for steering.
+- After a container restart, read your leases with `bosun status` and continue.
+
+### Rules
+
+- Change `bosun:state/*` labels only through bosun commands.
+- Never append to CHANGELOG.md or the Done list of docs/PROGRESS.md in a PR: add a one-line
+  fragment `changelog.d/<name>.md` or `docs/progress.d/<name>.md` instead (name: the branch with
+  `/` as `-`), so merging main never conflicts. Before a release, a docs PR to main runs
+  `bash .bosun/fold-fragments.sh`; the release PR then moves Unreleased under the version.
+- Run `git checkout -b <branch>` as its own command before any compound command that commits: the merge-lock reads the branch before the whole command runs, so `git checkout -b X && git commit` on the default branch is refused.
+- Stay inside your task's `touch:`. Put new tests in a new file instead of appending to a
+  shared one, and on a lockfile conflict take main's copy and regenerate it
+  (`git checkout origin/main -- <lockfile>`, then `cargo update -w` or `pnpm install`), so
+  parallel PRs never conflict. Planning rules:
+  https://github.com/keelstackhq/bosun/blob/main/docs/plan-format.md#cutting-tasks-for-parallel-work.
+- Never skip, delete or weaken a test to get green; test-integrity refuses it.
+- Lessons are not in this file. A review pack carries the lessons that match your files.
+- Front-load human steps: a plan lists every step only a human can do (secrets, settings,
+  accounts, keys) in `## Prerequisites`
+  (https://github.com/keelstackhq/bosun/blob/main/docs/prerequisites.md). Before work starts the
+  orchestrator runs `bosun prereqs <plan> --post` and relays `data.message` to the owner once.
+- Never wait mid-run for a human: run `bosun hold <issue> "<step>"` and take other work. Never
+  tick, edit or close the owner checklist issue (`bosun:prereqs`).
+- Owner approvals (D-012): the session asks the owner with a form in the Claude Code chat
+  (`AskUserQuestion`: repo, PR, head SHA; approve or hold); a child session sends the request to
+  the orchestrator. On approve the orchestrator posts the signed `bosun approve` comment for that
+  head (`bosun approve <pr>@<head> --sign-key <pem>`). Never ask the owner to write a GitHub
+  comment; their own `/bosun approve <sha>` comment is only a fallback.
+- Orchestrators relay approvals in batches: `bosun approve --list` gives `data.message`; keep its
+  `data.message_pairs`, only the latest message is answerable, numbers come only from the owner.
+- bosun's own rules and their reasons: https://github.com/keelstackhq/bosun/blob/main/docs/spec.md.
+
+<!-- splice:bosun:end -->

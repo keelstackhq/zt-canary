@@ -1,3 +1,5 @@
 
 [github]
+required_checks = ["ci-ok", "risk-check", "review-verdict", "main-open", "bosun-ok"]
+merge_queue = false
 secret_scope = "environment"

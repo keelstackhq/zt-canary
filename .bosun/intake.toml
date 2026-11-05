@@ -1,0 +1,10 @@
+version = 1
+repo = { name = "zt-canary", owner = "keelstackhq", visibility = "public" }
+stack = ["ts-pnpm"]
+pieces = ["base"]
+bosun_pieces = []
+goal = "A tiny TypeScript library with one exported function greet(name) and one test. Test repo for zero-touch provisioning."
+publish = ["none"]
+approvals = "owner-gated"
+notify = "chat"
+slack_channel = ""

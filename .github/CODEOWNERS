@@ -1,0 +1,12 @@
+# Governance and CI need an owner review (spec §8, R-gov and R-ci). Code outside these paths
+# merges through auto-merge after the gates (spec D13).
+/.bosun/              @keelstackhq
+/governance/          @keelstackhq
+/.github/             @keelstackhq
+/.claude/             @keelstackhq
+/.splice/             @keelstackhq
+/hoist.toml           @keelstackhq
+/AGENTS.md            @keelstackhq
+/REVIEW.md            @keelstackhq
+/CLAUDE.md            @keelstackhq
+/.npmrc               @keelstackhq
