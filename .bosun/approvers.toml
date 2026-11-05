@@ -1,0 +1,7 @@
+# Keys whose signed approvals count (bosun approve --sign-key): the owner keys of
+# keelstackhq/provision's approvers.toml at setup. Enroll or rotate a key with a PR the owner approves.
+
+[[key]]
+id = "orchestrator-2026-10"
+ed25519 = "CEcJkeUcWMFZTOjPcZ3bmL2y7yBrnJDBQF1aCvFx010="
+role = "owner"
